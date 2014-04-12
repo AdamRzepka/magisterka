@@ -3,24 +3,184 @@
 
 \section{HTML5}
 \label{sec:html5}
+HTML5 jest kolejną wersją języka HTML służącego to tworzenia stron WWW,
+opracowywany przez World Wide Web Consortium (W3C) i Web Hypertext Application
+Technology Working Group (WHATWG). Standard jest w większości ukończony i jego ostateczna
+specyfikacja ma być wydana do końca roku 2014, natomiast w ciągu kolejnych dwóch lat
+ma nastąpić wydanie wersji 5.1. Jest on pomyślany jak następca HTML 4.1 i XHTML 1.0.
+
+HTML5 wprowadza wiele nowych tagów (np. canvas, video, audio) oraz interfejsów programistycznych
+wymienionych w dalszych podrozdziałach. 
+Wraz z nowymi możliwościami HTML5 wraz z językiem JavaScript, stał się platformą
+umożliwiającą tworzenie rozbudowanych aplikacji oraz gier.
+
+\subsection{JavaScript}
+\label{ssec:javascript}
+
+JavaScript jest skryptowym językiem programowania osadzony w przeglądarkach internetowych
+i wykorzystywany do tworzenia interaktywnych stron oraz aplikacji internetowych.
+Wszystkie wymienione w dalszych podrozdziałach interfejsy programistyczne są stworzone
+dla tego języka.
+
+JavaScript powstał 1995 w firmie Netscape, a następnie został ustandaryzowany przez ECMA (stąd
+stosowana formalnie nazwa ECMAScript). Nazwa i składnia przypomina Javę, jednak jest to podobieństwo
+mylące. JavaScript jest językiem dynamicznym, posiadającym wiele cech języków funkcyjnych,
+a obiektowość jest oparta na prototypach, a nie klasach.
+
+Początkowo JavaScript był używany do wyświetlania prostych animacji,
+komunikatów i wstępnej walidacji danych w formularzach. Z w JavaScripcie czasem zaczęły
+powstawać coraz bardziej rozbudowane aplikacje i okazało się, że wydajność interpretowanego
+języka skryptowego z Garbage Collectorem (odśmiecaczem) jest coraz większym problemem.
+Rozpoczął się wyścig pomiędzy twórcami
+przeglądarek o jak najszybszy silnik skryptowy. W rezultacie, obecnie w większości przeglądarek
+skrypty są kompilowane do kodu natywnego przez kompilator JIT (Just In Time), z zastosowaniem wielu
+technik optymalizacji kodu, a Garbage Collector jest coraz szybszy. Dostępne są również
+rozbudowane narzędzia do profilowania kodu JavaScript.
+
+Ta sytuacja sprawiła, że JavaScript zaczął się nadawać do robienia wymagających obliczeniowo
+gier 3d. Oczywiście wciąż trzeba unikać szczególnie nieefektywnych konstrukcji tego języka
+i starać się alokować jak najmniej obiektów, aby ograniczyć przestoje powodowane przez działanie
+odśmiecacza. Jednak przy zachowaniu tych zasad, wydajność współczesnych silników JavaScript
+powinna być wystarczająca dla wielu gier.
+
+
+\subsubsection{asm.js}
+\label{sec:asmjs}
+
+asm.js jest to podzbiór JavaScript opracowany przez Mozillę, który zapewnia najszybsze wykonanie.
+Programowanie zgodnie z asm.js jest jednak bardzo żmudne, dlatego podzbiór ten jest głównie
+pomyślany jak cel kompilatorów innych języków do JavaScript (np. Emscripten). Nie istnieje
+obecnie translator dowolnego kodu JavaScript do asm.js. Ponieważ gra będąca przedmiotem niniejszej
+pracy powstaje w JavaScript, tematyka asm.js nie będzie szerzej omawiana.
 
 \subsection{WebGL}
 \label{ssec:webgl}
 
+WebGL jest to API dla języka JavaScript służące do wyświetlania grafiki 3d w przeglądarce.
+Z tego powodu jest to najbardziej istotna technologia z punktu widzenia
+twórców gier. Pomimo, że formalnie WebGL nie jest jeszcze
+częścią standardu HTML5, to jest on zaimplementowany we wszystkich znaczących
+przeglądarkach.
+
+WebGL bazuje na standardzie OpenGL ES 2.0 (Open Graphics Library for
+Embedded Systems) przeznaczonym dla urządzeń mobilnych, który z kolei
+jest uproszczoną wersją OpenGL (Open Graphics Library) -- otwartego API do
+renderowania grafiki 3d, będącym jednym z dwóch (obok Direct3D) szeroko
+stosowanych API do wyświetlania grafiki w grach i programach wykorzystujących 3d.
+Wszystkie te standardy zostały opracowane przez konsorcjum Khronos Group (wcześniej ARB),
+zrzeszające wszystkie (poza Microsoftem) większe firmy zainteresowane tematem grafiki 3d.
+
+Prace nad WebGL rozpoczęła Mozilla w 2006 roku. A w następnym roku Firefox oraz Opera
+miały już pierwsze działające implementacje. Były one kontynuowane w grupie roboczej
+WebGL Working Group działającej w ramach Khronos Group z udziałem m. in. Mozilli,
+Opery, Google oraz Apple. W 2011 roku ukończona została pierwsza wersja standardu, a w 2013
+ruszyły prace nad wersją 2.0 bazującą na OpenGL 3.0. W tym też roku Microsoft wydał
+Internet Explorer 11 z obsługą WebGL, pomimo początkowej niechęci do tego standardu
+(Microsoft promuje swoją technologię Direct3D, konkurencyjną w stosunku do OpenGL).
+Tym samym ostatnia z liczących się przeglądarek dodała obsługę WebGL.
+
+WebGL zaprojektowano dla języka JavaScript, w przeciwieństwie do OpenGL i OpenGL ES,
+które przeznaczone są głównie dla języka C. Jednakże jest interfejsem bardzo
+niskopoziomowym, w zasadzie dokładnie przełożonym na JavaScript OpenGL ES. Dodano
+jedynie kilka usprawnień (jak wczytywanie tekstury z elementu HTML <img>) oraz
+dodatkową walidację danych, istotną w środowisku tekstowym. Z tego powodu programiści
+JavaScript mogą uznać API za trudne i nieprzystępne. Z drugiej jednak strony, taka
+implementacja gwarantuje maksymalną szybkość działania, a programiści znający OpenGL mogą
+w zasadzie natychmiast zacząć używać WebGL.
+
+
 \subsection{Web Workers}
 \label{ssec:webWorkers}
+
+Współcześnie każdy domowy komputer posiada wielordzeniowy procesor. W tym samym kierunku
+podążają procesory w urządzeniach mobilnych. Aby maksymalnie wykorzystać moc obliczeniową,
+konieczne jest tworzenie aplikacji współbieżnych. Niestety JavaScript przez długi czas
+tego nie umożliwiał. Zmienia to API Web Workers należące do standardu HTML5.
+
+Worker jest to odpowiednik wątku dla języka JavaScript. Jednakże jego sposób działania
+upodabnia go bardziej do procesu -- poszczególne workery nie mogą współdzielić pamięci
+i komunikują się wyłącznie za pomocą wysyłanych wiadomości. Dzięki takiej konstrukcji
+można uniknąć wielu problemów związanych z klasyczną wielowątkowością, jednak odbywa
+się to kosztem wydajności z powodu konieczności częstego kopiowania danych. Dodatkowo
+API dostępne dla workera jest bardzo ograniczone (np. nie ma dostępu do elementów HTML).
+
+Te cechy powodują, że aby osiągnąć zysk wydajnościowy przy pomocy Web Workers, trzeba od
+początku projektować aplikację pod kątem tego API -- tak aby ograniczyć ilość przesyłanych
+danych.
+
+Należy zaznaczyć, iż taki sposób tworzenia aplikacji wielowątkowych jest nieobcy programistom
+gier, gdyż podobny model wymuszał procesor Cell w konsoli PlayStation3. Procesor ten składa
+się z jednego głównego rdzenia (tzw. Power Processing Element) oraz kilku rdzeni wspomagających
+(tzw. Synergistic Processing Element), które również nie mogą współdzielić pamięci. Podobnie jak
+Web Workerze, tak w programie działającym na SPE, dostępne API jest bardzo ograniczone.
 
 \subsection{Web Sockets}
 \label{ssec:webSockets}
 
+Wiele współczesnych gier umożliwia wspólną rywalizację wielu graczy za pośrednictwem internetu
+(tzw. multiplayer). W celu implementacji gry sieciowej konieczne jest API do komunikacji
+internetowej.
+
+Interfejs Web Sockets jest odpowiednikiem systemowych gniazd sieciowych i umożliwia komunikację
+w czasie rzeczywistym pomiędzy aplikacją JavaScript, a serwerem za pośrednictwem protokołu TCP.
+Jest on częścią HTML5 i dostępny we wszystkich znaczących przeglądarkach.
+
 \subsection{WebRTC}
 \label{ssec:webrtc}
+
+Wprowadzenie interfejsu Web Sockets było istotnym krokiem z punktu widzenia twórców gier
+sieciowych, ma on jednak pewne ograniczenia. Jest oparty o protokół TCP, którego 
+niezawodność powoduje opóźnienia w transmisji danych (przesyłanie potwierdzeń,
+retransmisje itp.). Dodatkowo cały ruch musi być kierowany przez serwer, gdyż bezpośrednia
+komunikacja pomiędzy przeglądarkami jest niemożliwa. To sprawia, że Web Sockets nie nadają
+się do bardzo dynamicznych gier.
+
+Rozwiązanie tego problemu nadeszło ze strony interfejsu WebRTC (od Real Time Communication),
+mającego służyć przede wszystkim
+do przesyłanie wideo i dźwięku w czasie rzeczywistym pomiędzy przeglądarkami, dzięki czemu
+możliwe byłoby zbudowanie komunikatora wideo w przeglądarce.
+
+WebRTC umożliwia również przesyłanie dowolnych danych tekstowych i binarnych, a ponieważ
+działa w oparciu o protokół UDP i łączy bezpośrednio przeglądarki (peer-to-peer), idealnie
+nadaje się do szybkich gier sieciowych. Oczywiście użycie  bezpołączeniowego protokołu UDP
+powoduje, że aplikacja sama musi zapewnić poprawność działania w przypadku błędów przesyłu. 
+
+WebRTC był początkowo tworzonym przez Google, lecz wkrótce prace przejęła grupa robocza w W3C,
+złożona m.in. z Google, Mozilli i Opery. Niestety Microsoft odmówił wsparcia dla WebRTC i  -- jak
+to miało miejsce już wielokrotnie -- zaczął tworzyć swój alternatywny standard: CU-RTC-WEB
+(Customizable, Ubiquitous Real-Time Communication over the Web). Dlatego WebRTC nie jest
+obsługiwany w Internet Explorer i nie ma żadnych planów jego implementacji. Co więcej,
+żadna z przeglądarek nie posiada jeszcze pełnej i stabilnej implementacji (stan na
+początek 2014 roku). Jednakże w niektórych (Chrome, Firefox) API już na tyle dojrzało, że
+można go z powodzeniem używać.
 
 \subsection{Web Audio API}
 \label{ssec:webAudio}
 
+Poza grafiką, w grach bardzo ważna jest również oprawa dźwiękowa. O ile odtwarzanie muzyki
+nie było problemem od czasu wprowadzenia taga <audio> to udźwiękowienie efektów w grze
+wymagało bardziej zaawansowanego API.
+
+W tym celu do HTML5 zostało wprowadzone Web Audio API. Jest to wysokopoziomowy, zaawansowany
+interfejs do przetwarzania i odtwarzania dźwięków w JavaScript. Umożliwia on wszystko co
+potrzebne do udźwiękowienia gry -- dźwięk przestrzenny, nakładanie wielu efektów itp.
+
+Aktualnie (2014) Web Audio API jest wspierane przez wszystkie większe przeglądarki oprócz
+Internet Explorer.
+
 \subsection{Pozostałe przydatne API}
 \label{ssec:pozostaleApi}
+
+HTML5 zapewnia wiele interfejsów programistycznych przydatnych w wielu aplikacjach
+i grach w zależności od potrzeb. Wśród bardziej przydatnych należałoby wymienić:
+\begin{itemize}
+\item Gamepad API -- obsługa gamepadów, joysticków, kierownic komputerowych itp.
+\item Web Storage -- przechowywanie danych po stronie klienta (np. w celu cache'owania danych gry),
+\item File API -- operowanie na plikach,
+\item XmlHTTPRequest -- asynchroniczne pobieranie plików z serwera (standard de facto
+  od dłuższego czasu),
+\item Device Orientation i Touch Events -- dla urządzeń mobilnych.
+\end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
