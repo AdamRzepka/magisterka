@@ -19,8 +19,9 @@ umożliwiającą tworzenie rozbudowanych aplikacji oraz gier.
 
 JavaScript jest skryptowym językiem programowania osadzony w przeglądarkach internetowych
 i wykorzystywany do tworzenia interaktywnych stron oraz aplikacji internetowych.
-Wszystkie wymienione w dalszych podrozdziałach interfejsy programistyczne są stworzone
-dla tego języka.
+Formalnie nie jest związany z HTML5, jednak jest jedynym językiem obsługiwanym przez
+wszystkie przeglądarki, dlatego wszystkie wymienione w dalszych podrozdziałach
+interfejsy programistyczne są stworzone dla tego języka.
 
 JavaScript powstał 1995 w firmie Netscape, a następnie został ustandaryzowany przez ECMA (stąd
 stosowana formalnie nazwa ECMAScript). Nazwa i składnia przypomina Javę, jednak jest to podobieństwo
@@ -49,7 +50,7 @@ powinna być wystarczająca dla wielu gier.
 
 asm.js jest to podzbiór JavaScript opracowany przez Mozillę, który zapewnia najszybsze wykonanie.
 Programowanie zgodnie z asm.js jest jednak bardzo żmudne, dlatego podzbiór ten jest głównie
-pomyślany jak cel kompilatorów innych języków do JavaScript (np. Emscripten). Nie istnieje
+pomyślany jak cel kompilatorów innych języków do JavaScript (np. Emscripten [link/footnote]). Nie istnieje
 obecnie translator dowolnego kodu JavaScript do asm.js. Ponieważ gra będąca przedmiotem niniejszej
 pracy powstaje w JavaScript, tematyka asm.js nie będzie szerzej omawiana.
 
@@ -175,6 +176,8 @@ HTML5 zapewnia wiele interfejsów programistycznych przydatnych w wielu aplikacj
 i grach w zależności od potrzeb. Wśród bardziej przydatnych należałoby wymienić:
 \begin{itemize}
 \item Gamepad API -- obsługa gamepadów, joysticków, kierownic komputerowych itp.
+\item Mouse Lock API -- możliwość ukrycia i zablokowania kursora myszy,
+\item Fullscreen API
 \item Web Storage -- przechowywanie danych po stronie klienta (np. w celu cache'owania danych gry),
 \item File API -- operowanie na plikach,
 \item XmlHTTPRequest -- asynchroniczne pobieranie plików z serwera (standard de facto
@@ -184,32 +187,216 @@ i grach w zależności od potrzeb. Wśród bardziej przydatnych należałoby wym
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Gry FPS}
-\label{sec:gryFPS}
+\section{Gry Komputerowe}
+\label{sec:gryKomputerowe}
+
+Gry komputerowe to w dzisiejszych czasach ogromny rynek zapewniający rozrywkę milionom graczy
+na całym świecie. Historia gier zaczęła się niedługo po wynalezieniu komputerów. Początkowo
+były to bardzo proste programy, jednak z czasem stawały się coraz bardziej skomplikowane,
+zarówno pod względem technicznym (grafika, dźwięk), jak i pod względem mechaniki (zasad gry).
+
+[jakiś skrin?]
+
+Gry opanowały wiele platform sprzętowych. Wcześniej utożsamiane głównie z automatami i konsolami,
+wkrótce odniosły wielki sukces na komputerach osobistych,
+a współcześnie na telefonach i tabletach.
+Co prawda gry działające w przeglądarce pojawiały się od początku istnienia języka JavaScript,
+czy platformy Adobe Flash (wcześniej Macromedia Flash), jednak były one utożsamiane
+z bardzo prostą rozgrywką i ubogą warstwą audiowizualną. Wraz w nadejściem ery HTML5
+i technologii z nim związanych (przede wszystkim WebGL), zaistniała możliwość ekspansji
+bardziej zaawansowanych gier na ten -- stosunkowo jeszcze młody -- rynek.
+
+W następnych podrozdziałach zostanie przedstawiony gatunek gier FPS oraz dwie gry tego typu,
+szczególnie związane z niniejszym opracowaniem, a także silnik gry, na którym są oparte.
+Następnie wprowadzone zostaną koncepcje związane z architekturą gier sieciowych (mutliplayer).
+
+\subsection{Gry FPS}
+
+Przedmiotem pracy jest stworzenie gry typu FPS działającej w przeglądarce. 
+
+Skrót FPS oznacza First Person Shooter. Jest to strzelanina w której obserwujemy świat
+oczami bohatera. Gry typu FPS należą do najstarszych i najczęściej występujących gier
+3d. Z jednej strony mają one dość prostą mechanikę i zasady, z drugiej natomiast, często
+są bardzo zaawansowane technologicznie i bywają pionierskie w dziedzinach takich jak
+realistyczna grafika, czy rozgrywka sieciowa. Dlatego właśnie taki gatunek został wybrany
+do implementacji w HTML5.
+
+[screen ze współczesnej gry]
 
 \subsection{Quake III Arena}
 \label{ssec:quake3}
 
+W roku 1996 ukazała się gra Quake, która odniosła wielki sukces, głównie dzięki
+rewolucyjnej grafice i dopracowanej rozgrywce sieciowej. Twórcą gry była firma
+id Software. Rok później powstała kolejna część - Quake II.
+
+Z racji ogromnej popularności trybu dla wielu graczy, kolejna część -- Quake III
+Arena -- zupełnie porzuciła tradycyjny tryb fabularny i skupiła się tylko na
+rozgrywce sieciowej. Została wydana w roku 1999.
+Gra również odniosła sukces i do dziś pozostaje popularna
+pośród graczy. Profesjonalne turnieje gier sieciowych (tzw. e-sport) bardzo
+często w swoim programie mają rozgrywki w Quake III Arena.
+W roku 2000 ukazał się dodatek do gry pod nazwą Quake III Team Arena.
+
+[screen]
+
+Siedem lat później, w roku 2007 id Software rozpoczął prace nad wydaniem
+Quake III Arena i Team Arena na przeglądarki internetowe pod nazwą Quake Live.
+Kod gry uruchamiany był poprzez specjalnie stworzoną wtyczkę do
+przeglądarki. W związku z tym rozgrywka była możliwa tylko na wybranych systemach
+operacyjnych i przeglądarkach, konieczna też była instalacja wtyczki przez
+gracza.
+
+w międzyczasie, w roku 2005 ukazał się Quake IV, który kontynuował wątki fabularne
+z Quake II. Gra pomimo dobrych ocen w prasie nie przyjęła się tak dobrze
+wśród graczy, głównie ze względu na brak znaczących ulepszeń w trybie sieciowym.
+
+Quake III oraz Quake Live jest oparty na silniku gry o nazwie id Tech 3, o którym
+będzie mowa w podrozdziale \ref{ssec:idTech}.
+
 \subsection{OpenArena}
 \label{ssec:openArena}
 
-\subsection{ID Tech 3}
+W roku 2005 główny programista id Software, John Carmack, ogłosił uwolnienie
+kodu źródłowego silnika id Tech 3 na licencji GNU GPL. Uwalnianie źródeł swoich
+starszych technologii jest już tradycją w tej firmie.
+
+Wkrótce rozpoczęły się prace nad wieloma grami open source korzystającymi
+z tego silnika. Jedną z najbardziej dojrzałych jest OpenArena.
+
+OpenArena jest właściwie klonem Quake III Arena. Ponieważ z pierwowzoru został
+udostępniony tylko kod, fani utworzyli potrzebne zasoby gry (modele, tekstury itp.),
+również na licencji GPL. Wprowadzono też wiele usprawnień do kodu gry,
+dodając np. obsługę nowszej wersji OpenGL i shaderów \footnote{Shader - niewielki program
+  działający na karcie graficznej, opisujący właściwości wierzchołków
+  i pikseli.}. Tym samym OpenArena stała się pełnoprawną
+i całkowicie otwartą grą.
+
+[skrin]
+
+\subsection{id Tech 3}
 \label{ssec:idTech}
+
+Każda bardziej zaawansowana gra posiada w kodzie źródłowym mniej lub bardziej
+rozgraniczony rdzeń nazywany silnikiem gry. Odpowiada on za wczytywanie
+i wyświetlanie świata 3d, odtwarzanie dźwięków, obsługę sieci oraz wiele
+innych zadań. Często jeden silnik jest wykorzystywany przy tworzeniu wielu gier.
+
+id Software zawsze wykorzystywało swoje autorskie silniki, których źródła były
+publikowane po utworzeniu nowej wersji. Quake III Arena, a potem OpenArena
+wykorzystywały id Tech w wersji 3.
+
+Silnik ten był bardzo zaawansowany technologicznie jak na swoje czasy. Do wyświetlania
+grafiki konieczny był sprzętowy akcelerator graficzny. Pośród ciekawszych
+możliwości tego silnika należy wymienić:
+\begin{itemize}
+\item wyświetlanie powierzchni opartych na krzywych sklejanych,
+\item system tzw. skryptów shaderów, dzięki którym graficy mieli dużą kontrolę
+  nad wyglądem każdej powierzchni \footnote {Nie należy mylić tego systemu nieistniejącymi
+    jeszcze shaderami działającymi na karcie graficznej. Skrypty z id Tech3 były jednak pewną
+    namiastką shaderów w dzisiejszym rozumieniu.},
+\item wyświetlanie generowanych wcześniej map oświetlenia, zapewniających bardziej
+  realistyczny wygląd otoczenia,
+\item przestrzenna mgła,
+\item odbicia lustrzane,
+\item zaawansowany system synchronizacji stanu gry przez sieć,
+\item QVM -- wbudowana wirtualna maszyna wykonująca kod gry.
+\end{itemize}
+
+\subsection{Mulltiplayer}
+
+Multiplayer jest to tryb gry, w którym uczestniczy wielu graczy, zazwyczaj za
+pośrednictwem Internetu. Tryb ten jest często spotykany w grach FPS, ale także
+w grach wyścigowych, czy strategiach. Wiele gier i graczy skupia się wyłącznie
+na grze sieciowej. Zdarza się, że w jednej rozgrywce uczestniczy na raz
+tysiące graczy \footnote {Są to tak zwane gry MMO -- Massive Multiplayer Online}
+
+Tryb multiplayer wymaga, aby wszyscy gracze widzieli ten sam stan gry.
+Synchronizacja gry pomiędzy komputerami w sieci jest zagadnieniem nietrywialnym,
+szczególnie w przypadku gier bardzo dynamicznych i posiadających złożoną mechanikę
+(a przez to złożony opis stanu gry).
+
+Z punktu widzenia organizacji w sieci, możliwe są dwie architektury:
+\begin{itemize}
+\item Peer-to-peer -- nie ma głównego komputera, każdy komputer rozsyła do wszystkich
+  pozostałych informacje o każdej akcji wykonanej przez gracza lokalnego. Architektura
+  ta jest rzadko używana, ze względu na trudność z synchronizacją i problemy z
+  nieuczciwymi graczami.
+\item Klient - serwer -- najczęściej używana. Jeden z komputerów jest serwerem
+  gry. Na nim odbywa się cała symulacja, a wszyscy klienci służą jedynie jako
+  terminale, wysyłając informacje o naciśniętych przez gracza przyciskach
+  i otrzymując migawkę (snapshot) aktualnego stanu gry do wyrenderowania.
+\end {itemize}
+
+[obrazek z porównaniem]
+
+Należy zaznaczyć, że serwer niekoniecznie musi być dedykowaną maszyną utrzymywaną
+przez producenta gry. W przypadku gier w niewielką liczbą uczestników,
+zazwyczaj jeden z komputerów graczy pełni rolę serwera. Dodatkowo, bardzo
+często producent zapewnia tzw. lobby server, czyli główny serwer,
+który służy m. in. do odnajdywania toczących się właśnie rozgrywek
+i inicjalizacji połączenia. W związku z tym pojęcie serwer może mieć
+dwa różne znaczenia i wymaga doprecyzowania, dlatego na potrzeby dalszej części pracy
+wprowadzimy następujące pojęcia:
+\begin{itemize}
+\item serwer główny lub lobby -- serwer utrzymywany przez dewelopera, zbierający
+  informacje o toczących się grach i ułatwiający inicjalizację połączenia,
+\item serwer gry -- instancja gry która zarządza konkretną rozgrywką
+\end{itemize}
+W przypadku gry przeglądarkowej, serwer gry działa w przeglądarce, co może
+wprowadzić dodatkowe nieporozumienie, gdyż w aplikacjach webowych przeglądarka
+jest tożsama z klientem.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Poprzednie prace}
 \label{sec:poprzedniePrace}
 
+W niniejszym rozdziale zaprezentowane zostaną projekty, mające związek z tematyką pracy.
+
 \subsection{Quake II w przeglądarce}
 \label{ssec:quake2web}
+
+W roku 2010 dwaj pracownicy Google, Joel Webber i Ray Cromwell
+udostępnili swój projekt -- port Quake II
+na przeglądarki z wykorzystaniem WebGL. Była to jedna z pierwszych prac,
+które udowodniły możliwość zaistnienia gier 3d w przeglądarkach.
+
+quake2-gwt-port, bo tak został nazwany projekt, powstał poprzez skompilowanie
+w GWT [tu ref/footnote/whatever] kodu Jake2 -- portu Quake II do Javy.
+Projekt ten nie powstał bezpośrednio w JavaScript, przez co nie integruje się
+zbyt dobrze ze środowiskiem webowym, a do uruchomienia konieczne było
+wiele łat i rozwiązań prowizorycznych. Dodatkowo w roku 2010 nie istniało
+jeszcze Mouse Lock API, przez co sterowanie grą jest bardzo trudne.
+
+Z tych powodów projekt ten należy uznać raczej za demo technologiczne niż
+grę. Mimo to był to ważny krok milowy dla technologii WebGL.
+
+[strona projektu]
 
 \subsection{Quake III level viewer}
 \label{ssec:quake3web}
 
+W tym samym roku Brandon Jones zaprezentował swoje demo o nazwie q3bsp.
+Jest to level viewer\footnote{Level viewer - narzędzie umożliwiające
+  podgląd danego poziomu gry, bez uruchamiania logiki rozgrywki} poziomów
+z Quake III Arena. W przeciwieństwie do quake2-gwt-port, q3bsp został
+w całości napisany w JavaScripcie, dzięki czemu mógł użyć wiele udogodnień
+zapewnianych przez środowisko przeglądarki (np. zapewnione wczytywanie
+plików graficznych, interfejs użytkownika w HTML), a jego wydajność
+jest dużo lepsza, pomimo bardziej zaawansowanej grafiki.
+
+Projekt ten również zyskał duży rozgłos w środowisku deweloperów WebGL
+i poza nim. Można go zobaczyć na stronie [strona]. Część kodu źródłowego
+q3bsp (udostępnionego na licencji zlib) została wykorzystana w niniejszej pracy.
+
 \subsection{Banana Bread}
 \label{ssec:bananaBread}
 
+Banana Bread jest portem gry Cube2:Sauerbraten [link] na JavaScript zrobionym
+przez Mozillę. Powstał przez kompilację z C++ kompilatorem Emscripten.
+
+Jest to pełnoprawna i działająca gra, w którą można zagrać na stronie [ref].
 
 
 %%% Local Variables: 
