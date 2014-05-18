@@ -14,6 +14,15 @@ wymienionych w dalszych podrozdziałach.
 Wraz z nowymi możliwościami HTML5 wraz z językiem JavaScript, stał się platformą
 umożliwiającą tworzenie rozbudowanych aplikacji oraz gier.
 
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.25]{zasoby/rozdzial2/HTML5}  
+  \caption{HTML5 i związane z nim technologie oraz ich status.}
+  \label{fig:HTML5}
+\end{figure}
+
+Pełna specyfikacja HTML5 znajduje się w \cite{html5-spec}.
+
 \subsection{JavaScript}
 \label{ssec:javascript}
 
@@ -26,7 +35,9 @@ interfejsy programistyczne są stworzone dla tego języka.
 JavaScript powstał 1995 w firmie Netscape, a następnie został ustandaryzowany przez ECMA (stąd
 stosowana formalnie nazwa ECMAScript). Nazwa i składnia przypomina Javę, jednak jest to podobieństwo
 mylące. JavaScript jest językiem dynamicznym, posiadającym wiele cech języków funkcyjnych,
-a obiektowość jest oparta na prototypach, a nie klasach.
+a obiektowość jest oparta na prototypach, a nie klasach. Specyfikacja języka ECMAScript jest
+publicznie dostępna na stronie \cite{ecma-spec}, natomiast wyczerpujące wprowadzenie można
+znaleźć w \cite{js-definitive}.
 
 Początkowo JavaScript był używany do wyświetlania prostych animacji,
 komunikatów i wstępnej walidacji danych w formularzach. Z w JavaScripcie czasem zaczęły
@@ -52,7 +63,8 @@ asm.js jest to podzbiór JavaScript opracowany przez Mozillę, który zapewnia n
 Programowanie zgodnie z asm.js jest jednak bardzo żmudne, dlatego podzbiór ten jest głównie
 pomyślany jak cel kompilatorów innych języków do JavaScript (np. Emscripten [link/footnote]). Nie istnieje
 obecnie translator dowolnego kodu JavaScript do asm.js. Ponieważ gra będąca przedmiotem niniejszej
-pracy powstaje w JavaScript, tematyka asm.js nie będzie szerzej omawiana.
+pracy powstaje w JavaScript, tematyka asm.js nie będzie szerzej omawiana. Więcej informacji można
+znaleźć na stronie internetowej \cite{asm-js}.
 
 \subsection{WebGL}
 \label{ssec:webgl}
@@ -87,7 +99,8 @@ jedynie kilka usprawnień (jak wczytywanie tekstury z elementu HTML <img>) oraz
 dodatkową walidację danych, istotną w środowisku tekstowym. Z tego powodu programiści
 JavaScript mogą uznać API za trudne i nieprzystępne. Z drugiej jednak strony, taka
 implementacja gwarantuje maksymalną szybkość działania, a programiści znający OpenGL mogą
-w zasadzie natychmiast zacząć używać WebGL.
+w zasadzie natychmiast zacząć używać WebGL. Specyfikacja WebGL znajduje się na stronie
+\cite{webgl}.
 
 
 \subsection{Web Workers}
@@ -195,7 +208,12 @@ na całym świecie. Historia gier zaczęła się niedługo po wynalezieniu kompu
 były to bardzo proste programy, jednak z czasem stawały się coraz bardziej skomplikowane,
 zarówno pod względem technicznym (grafika, dźwięk), jak i pod względem mechaniki (zasad gry).
 
-[jakiś skrin?]
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.5]{zasoby/rozdzial2/mario}  
+  \caption{Jedna z najsłynniejszych gier w historii -- Super Mario Bros.}
+  \label{fig:mario}
+\end{figure}
 
 Gry opanowały wiele platform sprzętowych. Wcześniej utożsamiane głównie z automatami i konsolami,
 wkrótce odniosły wielki sukces na komputerach osobistych,
@@ -205,6 +223,8 @@ czy platformy Adobe Flash (wcześniej Macromedia Flash), jednak były one utożs
 z bardzo prostą rozgrywką i ubogą warstwą audiowizualną. Wraz w nadejściem ery HTML5
 i technologii z nim związanych (przede wszystkim WebGL), zaistniała możliwość ekspansji
 bardziej zaawansowanych gier na ten -- stosunkowo jeszcze młody -- rynek.
+
+Zainteresowani tematyką tworzenia gier znajdą obszerne wprowadzenie w \cite{game-engine}.
 
 W następnych podrozdziałach zostanie przedstawiony gatunek gier FPS oraz dwie gry tego typu,
 szczególnie związane z niniejszym opracowaniem, a także silnik gry, na którym są oparte.
@@ -221,7 +241,12 @@ są bardzo zaawansowane technologicznie i bywają pionierskie w dziedzinach taki
 realistyczna grafika, czy rozgrywka sieciowa. Dlatego właśnie taki gatunek został wybrany
 do implementacji w HTML5.
 
-[screen ze współczesnej gry]
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.25]{zasoby/rozdzial2/battlefield4}  
+  \caption{Współczesna gra FPS -- Battlefield 4}
+  \label{fig:battlefield4}
+\end{figure}
 
 \subsection{Quake III Arena}
 \label{ssec:quake3}
@@ -237,8 +262,12 @@ Gra również odniosła sukces i do dziś pozostaje popularna
 pośród graczy. Profesjonalne turnieje gier sieciowych (tzw. e-sport) bardzo
 często w swoim programie mają rozgrywki w Quake III Arena.
 W roku 2000 ukazał się dodatek do gry pod nazwą Quake III Team Arena.
-
-[screen]
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.5]{zasoby/rozdzial2/quake3}  
+  \caption{Scena z gry Quake III Arena}
+  \label{fig:quake3}
+\end{figure}
 
 Siedem lat później, w roku 2007 id Software rozpoczął prace nad wydaniem
 Quake III Arena i Team Arena na przeglądarki internetowe pod nazwą Quake Live.
@@ -272,7 +301,7 @@ dodając np. obsługę nowszej wersji OpenGL i shaderów \footnote{Shader - niew
   i pikseli.}. Tym samym OpenArena stała się pełnoprawną
 i całkowicie otwartą grą.
 
-[skrin]
+Grę OpenArena można pobrać ze strony \url{http://openarena.ws/}.
 
 \subsection{id Tech 3}
 \label{ssec:idTech}
@@ -303,7 +332,10 @@ możliwości tego silnika należy wymienić:
 \item QVM -- wbudowana wirtualna maszyna wykonująca kod gry.
 \end{itemize}
 
-\subsection{Mulltiplayer}
+Interesujące omówienie architektury silnika id Tech 3 znajduje się w \cite{q3-code-reviev}.
+
+\subsection{Multiplayer}
+\label{ssec:multiplayer}
 
 Multiplayer jest to tryb gry, w którym uczestniczy wielu graczy, zazwyczaj za
 pośrednictwem Internetu. Tryb ten jest często spotykany w grach FPS, ale także
@@ -328,8 +360,6 @@ Z punktu widzenia organizacji w sieci, możliwe są dwie architektury:
   i otrzymując migawkę (snapshot) aktualnego stanu gry do wyrenderowania.
 \end {itemize}
 
-[obrazek z porównaniem]
-
 Należy zaznaczyć, że serwer niekoniecznie musi być dedykowaną maszyną utrzymywaną
 przez producenta gry. W przypadku gier w niewielką liczbą uczestników,
 zazwyczaj jeden z komputerów graczy pełni rolę serwera. Dodatkowo, bardzo
@@ -343,9 +373,20 @@ wprowadzimy następujące pojęcia:
   informacje o toczących się grach i ułatwiający inicjalizację połączenia,
 \item serwer gry -- instancja gry która zarządza konkretną rozgrywką
 \end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=1]{zasoby/rozdzial2/multiplayer}  
+  \caption{Schemat połączeń sieciowych w grze multiplayer typu klient - serwer, jeden z komputerów graczy pełni rolę serwera gry.}
+  \label{fig:multiplayer}
+\end{figure}
+
 W przypadku gry przeglądarkowej, serwer gry działa w przeglądarce, co może
 wprowadzić dodatkowe nieporozumienie, gdyż w aplikacjach webowych przeglądarka
-jest tożsama z klientem.
+jest tożsama z klientem HTTP.
+
+Zagadnienie programowania gry multiplayer jest bardzo obszerne. Jeden z dokładniejszych
+opisów można znaleźć w \cite{algorithms-networking}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -363,7 +404,10 @@ na przeglądarki z wykorzystaniem WebGL. Była to jedna z pierwszych prac,
 które udowodniły możliwość zaistnienia gier 3d w przeglądarkach.
 
 quake2-gwt-port, bo tak został nazwany projekt, powstał poprzez skompilowanie
-w GWT [tu ref/footnote/whatever] kodu Jake2 -- portu Quake II do Javy.
+w GWT \footnote{GWT -- Google Web Toolkit -- SDK do tworzenie aplikacji webowych w języku Java,
+  posiadające również kompilator części klienckiej do JavaScript.
+  \url{http://www.gwtproject.org/} }
+kodu Jake2 -- portu Quake II do Javy.
 Projekt ten nie powstał bezpośrednio w JavaScript, przez co nie integruje się
 zbyt dobrze ze środowiskiem webowym, a do uruchomienia konieczne było
 wiele łat i rozwiązań prowizorycznych. Dodatkowo w roku 2010 nie istniało
@@ -372,7 +416,7 @@ jeszcze Mouse Lock API, przez co sterowanie grą jest bardzo trudne.
 Z tych powodów projekt ten należy uznać raczej za demo technologiczne niż
 grę. Mimo to był to ważny krok milowy dla technologii WebGL.
 
-[strona projektu]
+Strona projektu: \url{https://code.google.com/p/quake2-gwt-port/}.
 
 \subsection{Quake III level viewer}
 \label{ssec:quake3web}
@@ -387,16 +431,18 @@ plików graficznych, interfejs użytkownika w HTML), a jego wydajność
 jest dużo lepsza, pomimo bardziej zaawansowanej grafiki.
 
 Projekt ten również zyskał duży rozgłos w środowisku deweloperów WebGL
-i poza nim. Można go zobaczyć na stronie [strona]. Część kodu źródłowego
+i poza nim. Można go zobaczyć na stronie \url{http://media.tojicode.com/q3bsp/}.
+Część kodu źródłowego
 q3bsp (udostępnionego na licencji zlib) została wykorzystana w niniejszej pracy.
 
 \subsection{Banana Bread}
 \label{ssec:bananaBread}
 
-Banana Bread jest portem gry Cube2:Sauerbraten [link] na JavaScript zrobionym
+Banana Bread jest portem gry Cube2:Sauerbraten (\url{http://sauerbraten.org/})
+na JavaScript zrobionym
 przez Mozillę. Powstał przez kompilację z C++ kompilatorem Emscripten.
 
-Jest to pełnoprawna i działająca gra, w którą można zagrać na stronie [ref].
+Jest to pełnoprawna i działająca gra, w którą można zagrać na stronie \url{https://developer.mozilla.org/pl/demos/detail/bananabread}.
 
 
 %%% Local Variables: 
