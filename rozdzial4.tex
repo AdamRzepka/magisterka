@@ -1,23 +1,260 @@
 \chapter{Analiza}
 \label{cha:analiza}
 
-\section{Stopień realizacji tematu}
+Niniejszy rozdział zaczyna się od  podsumowania zrealizowanego projektu. Następnie na podstawie zebranych
+doświadczeń nastąpi analiza przydatności technologii HTML 5 do realizacji gier 3d.
+
+\section{Stopień realizacji projektu}
 \label{sec:stopieńRealizacji}
+
+Realizowany projekt -- WebArena -- miał być okrojonym klonem gry OpenArena, działającym w środowisku webowym.
+
+O ile gra jest w pewnym stopniu uproszczona w porównaniu do pierwowzoru, o tyle udało się odtworzyć
+większość funkcjonalności silnika gry, a więc dodawanie kolejnych funkcjonalności na poziomie samej
+rozgrywki jest już zadaniem stosunkowo prostym (choć wymaga trochę czasu) i nie wpłynie w znacznym stopniu
+na wydajność gry czy jej ogólną konstrukcję.
+
+Największym brakiem w grze jest brak dźwięków. Nie wynika on jednak z niedostatków technologicznych
+HTML 5, gdyż standard oferuje bardzo rozbudowaną bibliotekę do obsługi dźwięku (rozdział \ref{ssec:webAudio},
+a jedynie z ograniczonych zasobów czasowych.
+
+Największym wyzwaniem była realizacja renderera i multiplayera. Jednocześnie są to najważniejsze komponenty
+dla sieciowej gry 3D. W WebArana zostały one odtworzone z prawie całą funkcjonalnością dostępną
+w pierwowzorze. Renderer ma następujące braki:
+\begin{itemize}
+\item brak wyświetlania mgły i wody,
+\item brak wyświetlania śladów po kulach na ścianach,
+\item brak luster,
+\item brak optymalizacji polegającej na nierenderowaniu odległych przedmiotów.
+\end{itemize}
+
+Dodanie tych funkcjonalności nie będzie trudnym zadaniem przy istniejących już podstawach, a poza ostatnim
+punktem nie wpływają one znacząco na wydajność gry.
+
+Jeśli chodzi o część odpowiedzialną za multiplayer, to jedynym poważniejszym brakiem jest przyjazna dla
+użytkownika obsługa utraty połączenia sieciowego.
 
 \section{Porównanie z grami natywnymi}
 \label{sec:porownanieZNatywnymi}
 
-\section{Przydatność HTML5 do tworzenia gier}
+\subsection{Wydajność}
+
+Największą obawą deweloperów gier co do gier przeglądarkowych jest wydajność języka JavaScript w stosunku
+do C i C++. W najbardziej zaawansowanych graficznie grach każdy niemalże cykl procesora jest ważny.
+W ich przypadku języki natywne są jedynym możliwym wyborem. Tego typu gry to jednak niewielki ułamek
+całego rynku.
+
+Od kilku lat trwa wyścig pomiędzy twórcami przeglądarek o najszybszy silnik JavaScript. W rezultacie,
+aktualnie JavaScript jest prawdopodobnie najszybszym językiem skryptowym. Jest to osiągnięte poprzez
+kompilację do kodu natywnego przed wykonaniem, profilowanie w czasie rzeczywistym i optymalizację
+najczęściej wykonywanego kodu, cache'owanie informacji o typie oraz bardzo szybkie odśmiecanie.
+
+W efekcie, podczas tworzenia WebArana nie pojawił się ani raz problem ze zbyt niską wydajnością języka.
+Gra na średniej klasy komputerze sprzed kilku lat działa płynnie, a możliwych jest 
+wiele optymalizacji w rendererze, które jeszcze przyspieszą działanie gry. 
+
+Istotny jest również sposób realizacji API WebGL. Jest ono bardzo niskopoziomowe i bardzo podobne
+do natywnego OpenGL. Shadery wykonują się na procesorze karty graficznej dokładnie tak samo jak
+w przypadku OpenGL. Dzięki temu wydajność WebGL w większości wypadków jest praktycznie taka sama jak
+OpenGL.
+
+Podczas tworzenia gry trzeba jednak zwracać uwagę na kwestię istnienia garbage collectora. Pomimo,
+że te zaimplementowane we współczesnych przeglądarkach są bardzo szybkie, to jeśli aplikacja
+będzie alokować pamięć bardzo intensywnie, może się okazać, że odśmiecanie powoduje zauważalną pauzę.
+Z tego powodu najlepiej alokować większe ilości pamięci podczas wczytywania gry, a w czasie działania
+ograniczyć tworzenie nowych obiektów do minimum.
+
+Należy zaznaczyć, że przekazane w tej sekcji dotyczą przede wszystkim
+przeglądarek Google Chrome i Mozilla Firefox, gdyż
+aktualnie tylko na nich działa gra (ze względu na implementacją potrzebnych standardów). Można się jednak
+spodziewać, że pozostałe przeglądarki zaoferują podobną wydajność silników skryptowych.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=1]{zasoby/rozdzial4/fps}
+  \caption {Średnia ilość klatek na sekundę w grze}
+  \label{fig:fps}
+\end{figure}
+
+Na wykresie \ref{fig:fps} przedstawiono średnią ilość klatek na sekundę\footnote{FPS (frames per second)
+  -- ilość klatek wyrenderowanych podczas jednej sekundy. Popularna metryka wydajności gry.}. Jak
+widać, Google Chrome jest szybsze, jednak Firefox również zdołał wygenerować około 40 klatek co jest
+wynikiem wystarczającym do komfortowej gry. Trzeba zwrócić uwagę, że przy standardowych
+ustawieniach przeglądarki, sterownik karty graficznej i tak ograniczy ilość klatek do 60, w celu
+synchronizacji z częstotliwością odświeżania monitora. Końcowy użytkownik nie zauważy więc tak dużej różnicy
+w wydajności pomiędzy przeglądarkami, jak widać to na porównaniu.
+
+\subsection{Wielowątkowość}
+
+Tak jak napisano w rozdziale \ref{ssec:webWorkers}, wielowątkowość jest realizowana w JavaScript przez API
+WebWorkers, które nakłada wiele ograniczeń. Workery są bardziej podobne do procesów niż wątków, ponieważ
+nie mogą współdzielić danych, ani kodu. Dodatkowo większość funkcji JavaScript jest niedostępnych
+poza głównym workerem (np. WebGL, WebRTC, Web Audio API), musi on więc pośredniczyć we wszystkich
+wywołaniach API.
+
+Taka konstrukcja sprawia, że bardzo trudno jest uzyskać znaczący wzrost wydajności dzięki rozdzieleniu
+pracy na np. dwa wątki. W przypadku WebArena można to było łatwo zauważyć dzięki bibliotece opisanej
+w rozdziale \ref{sec:wielowatkowosc}, która umożliwia szybkie przełączenie pomiędzy trybem jednowątkowym
+i dwuwątkowym. W pierwszym trybie, renderer i logika działają na wątku głównym, w drugim zaś są podzielone
+na dwa wątki.
+
+Obserwacje wykazały, że wydajność gry, mierzona ilością wyświetlonych klatek na sekundę, zmienia
+się w niewielkim stopniu podczas przełączania trybów.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=1]{zasoby/rozdzial4/fpsthreads}
+  \caption {Porównanie ilość klatek na sekundę w trybie jednowątkowym i dwuwątkowym}
+  \label{fig:fpsThreads}
+\end{figure}
+
+Wykres \ref{fig:fpsThreads} przedstawia porównanie wydajności tych trybów. W Firefoksie udało się osiągnąć
+pewien zysk rozdzielając pracę na dwa wątki, jednak jest to zysk niewielki. Jedną z przyczyn takiej sytuacji
+jest to, że w celu komunikacji pomiędzy workerami konieczne jest kopiowanie dużych ilości danych, które nie mogą
+być współdzielone. To z kolei powoduje częstsze wywoływanie garbage collectora, co niweluje część
+zysków wynikających ze zrównoleglenia.
+
+W Chrome nie występuje zauważalna różnica w wydajności. Jest to prawdopodobnie spowodowane tym, że silnik
+JavaScript w tej przeglądarce jest już na tyle szybki, że wąskim gardłem staje się procesor graficzny.
+Wobec tego przyśpieszanie kodu działającego na procesorze głównym, nie może zwiększyć ogólnych wyników.
+
+Przy tych pesymistycznych wnioskach trzeba jednak zwrócić na to, że WebArena nie ma zbyt skomplikowanej
+logiki, przez co główny wątek (renderujący) ma więcej pracy niż wątek logiki gry. W takiej sytuacji
+niemożliwe jest bardzo duże przyśpieszenie przez podział na dwa wątki.
+
+Gry w których występuje np. symulacja fizyki i zaawansowana animacja szkieletowa, wciąż warto jest
+stosować Web Workers, najlepiej z dużą ilością krótkich zadań do wykonania, które łatwo oddelegować
+na dowolną ilość wątków. Takie rozwiązanie przyniosłoby dobre efekty zwłaszcza na procesorach posiadających
+więcej niż dwa rdzenie. Jeżeli jednak logika gry jest prosta, koszt projektowania
+systemu wielowątkowego specjalnie pod Web Workers, prawdopodobnie nie jest warty potencjalnych zysków.
+
+Należy też zwrócić uwagę na jeszcze jedną zaletę Web Workers. Nawet jeżeli dodatkowe workery nie przyniosą
+zysków wydajnościowych, to umożliwią wykonywanie czasochłonnych zadań (takich jak parsowanie pliku
+binarnego) bez blokowania interfejsu użytkownika. Jest to bardzo istotne patrząc od strony ergonomii
+użytkowania gry.
+
+\subsection{Proces programowania gry}
+
+Tworzenie gry przeglądarkowej z punktu widzenia programisty wygląda inaczej niż w przypadku natywnych
+gier. JavaScript jest językiem skryptowym, uruchamianym w przeglądarce.
+
+Ma to następujące zalety:
+\begin{itemize}
+\item JavaScript jest bardzo elastyczny i programuje się w nim łatwiej niż np. w C.
+\item Brak konieczności kompilacji sprawia, że bardzo szybko można wprowadzać i testować
+  poprawki.
+\item Możliwość edycji kodu w przeglądarce, co jeszcze bardziej przyśpiesza testowanie
+  poprawek.
+\item Dobre narzędzia do debugowania kodu JavaScript oraz błędów w wyświetlaniu grafiki 3d.
+\end{itemize}
+
+Z kolei do wad należą:
+\begin{itemize}
+\item Mniejsza wydajność w porównaniu z językami natywnymi (aczkolwiek w większości przypadków
+  wystarczająca),
+\item Brak kompilacji powoduje, że później zostają wykryte błędy,
+\item Elastyczność JavaScriptu w rękach niedoświadczonego programisty może prowadzić
+  do powstania źle zorganizowanego i trudnego w utrzymaniu kodu.
+\item Mniejsza dostępność gotowych bibliotek wspomagających tworzenie gier.
+\end{itemize}
+
+\subsection{Środowisko przeglądarkowe}
+
+Fakt, że gra działa wewnątrz strony internetowej powoduje, że wiele problemów, koniecznych
+do rozwiązania podczas pisania gry natywnej, po prostu nie istnieje.
+
+Jeden z przykładów to parsowanie plików graficznych. Jeżeli tekstury są dostarczane w jednym
+z formatów obsługiwanych przez przeglądarkę, nie trzeba pisać dodatkowego parsera, gdyż
+przeglądarka zajmie się ich wczytaniem. Obrazek taki można następnie przekazać do WebGL
+jako teksturę lub po prostu wyświetlić jako element interfejsu, również bez konieczności
+tworzenia własnego renderera 2D.
+
+Podobnie jest z plikami dźwiękowymi, czy filmami występującymi w grach jako wprowadzenie
+w fabułę.
+
+Jeszcze większą zaletą osadzenia gry w środowisku strony internetowej, jest dostęp do
+drzewa dokumentu HTML. Dzięki temu programista ma do dyspozycji gotowe rozwiązanie
+do tworzenia interfejsu użytkownika. W dodatku jest to jedno z najbardziej przemyślanych
+i wypróbowanych rozwiązań, a jednocześnie jedno z najpotężniejszych pod względem oferowanych
+możliwości.
+
+Należy tutaj zaznaczyć, że stworzenie dobrego graficznego interfejsu użytkownika w grach jest
+trudnym i żmudnym zadaniem. Już samo prawidłowe renderowanie tekstów jest zadaniem nietrywialnym.
+Mając do dyspozycji HTML, problem ten znika.
+
+\subsection{Wieloplatformowość}
+
+Twórcy gier dążą do tego, aby ich produkty działały na jak największej ilości urządzeń. Jednak
+proces portowania gry na nową platformę jest bardzo często trudny i nieopłacalny. W przypadku
+HTML 5 sprawa jest prosta -- jeżeli przeglądarka na danej platformie oferuje wszystkie potrzebne
+API, to gra po prostu będzie działać.
+
+Już teraz WebGL jest dostępne na wszystkich liczących się platformach PC (Windows, Mac, Linux),
+oraz wielu mobilnych. Należy założyć, że również przeglądarki działające na konsolach do gier nowej
+generacji zapewnią wkrótce obsługę tego standardu, co otworzy możliwość dotarcia do ich użytkowników
+dla niezależnych deweloperów\footnote{Gry na konsole takie jak PlayStation czy Xbox mogą tradycyjnie tworzyć
+tylko certyfikowani deweloperzy.}.
+
+Oczywiście samo uruchomienie gry to nie wszystko. Często trzeba dostosować sposób kontroli w grze
+(np. dla ekranów dotykowych), czy wyświetlania na mniejszym ekranie. Mimo to HTML 5 jest dużym ułatwieniem
+dla tworzenia gier wieloplatformowych.
+
+\subsection{Marketing i Monetyzacja}
+
+Aby sprzedać grę należy dotrzeć do jak największej liczby odbiorców. Tutaj platforma internetowa pokazuje
+swoje kolejne
+zalety. Jedną z nich jest łatwa integracja z serwisami społecznościowymi, które są kluczowe
+dla zaistnienia w świadomości użytkowników.
+
+Kolejną istotną cechą jest łatwa dostępność gry. Nie ma potrzeby czasochłonnego pobierania i instalacji.
+Wystarczy kliknięcie w link i po chwili można zacząć rozgrywkę.
+
+W tym miejscu trzeba jednak napisać o prawdopodobnie aktualnie największym problemie gier HTML 5.
+Jest nim trudność monetyzacji gry wynikająca z tego, że rynek dopiero zaczyna się rozwijać.
+
+Dla gier działających natywnie na PC istnieje wiele sklepów i platform dystrybucji cyfrowej. Są one
+bardzo popularne wśród graczy, można więc za ich pośrednictwem łatwo trafić do klientów
+zainteresowanych płaceniem za gry. Dodatkowo sklep zajmuje się obsługą transakcji.
+
+Dla gier webowych takie platformy dopiero się pojawiają i na razie mają niewielką liczbę klientów.
+Dlatego aktualnie najlepszym sposobem na zarobienie na grze jest model free to play. W tego typu
+gry każdy może zacząć grać za darmo i płacić wedle uznania za dodatkowe usługi. Niestety taki
+model nie nadaje się do każdej gry.
+
+Jeden z serwisów który może w przyszłości zmienić tę sytuację jest \url{turbulenz.com}.
+Oferuje on już kilka darmowych gier,
+pracuje także nad wprowadzeniem płatności. Co więcej, oferuje też darmowy, kompletny silnik
+do tworzenia gry w HTML 5, który można wykorzystać również poza serwisem.
+
+\section{Podsumowanie przydatności HTML5 do tworzenia gier}
 \label{sec:przydatność}
+
+W tym podrozdziale znajduje się krótkie podsumowanie wymienionych wcześniej zalet i wad
+tworzenia gier w HTML 5.
 
 \subsection{Zalety}
 \label{ssec:zalety}
 
+\begin{itemize}
+\item Łatwość i szybkość tworzenia kodu w JavaScript.
+\item Bogate API HTML (np. do tworzenia interfejsu użytkownika).
+\item Narzędzia ułatwiające tworzenie aplikacji internetowych.
+\item Wieloplatformowość.
+\item Łatwa integracja z serwisami społecznościowymi.
+\item Natychmiastowa dostępność dla graczy.
+\end{itemize}
+
 \subsection{Wady}
 \label{ssec:wady}
 
-\section{Możliwości dalszego rozwoju gry}
-\label{sec:mozliwosciRozwoju}
+\begin{itemize}
+\item Mniejsza wydajność JavaScript w porównaniu do języków natywnych.
+\item Brak tradycyjnych wątków.
+\item Mniejsza dostępność bibliotek wspomagających tworzenie gier.
+\item Elastyczność i brak kompilacji JavaScript może stać się wadą.
+\item Trudność monetyzacji.
+\end{itemize}
+
 
 
 %%% Local Variables: 

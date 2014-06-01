@@ -287,7 +287,7 @@ W przypadku gry sieciowej nie można pominąć kwestii przesyłania plików prze
 zasoby muszą być pobrane z serwera przed rozpoczęciem rozgrywki. Konieczne jest jednak maksymalne
 skrócenie czasu oczekiwania gracza.
 
-Ściąganie każdego pliku z osobna jest bardzo nieefektywne, z drugiej jednak strony pobieranie wszystkich
+Ściąganie każdego pliku osobno jest bardzo nieefektywne, z drugiej jednak strony pobieranie wszystkich
 zasobów w jednym dużym archiwum trwało by zbyt długo. Dlatego trzeba podzielić pliki na kilka
 archiwów, tak aby gracz pobierał jedynie te potrzebne do zagrania w dany poziom.
 
@@ -301,18 +301,150 @@ służąca do wykonywania asynchronicznych zapytań HTML z języka JavaScript.}.
 \section{Synchronizacja sieciowa}
 \label{sec:synchronizacjaSieciowa}
 
-\begin{figure}[h]
+Jedną z najciekawszych części projektu jest biblioteka służąca do synchronizacji stanu gry pomiędzy
+komputerami w sieci. Biblioteka napisana jest w taki sposób, aby łatwo można jej było użyć w innych
+projektach.
+
+Ręczne pisanie kodu do synchronizacji danych jest bardzo żmudnym zadaniem. Trzeba pamiętać o wielu
+niskopoziomowych problemach, takich jak zgubione pakiety (przez zawodny protokół UDP), czy
+też zbyt duży ich rozmiar. Dlatego istotne jest wprowadzenie mechanizmu, który zautomatyzuje synchronizację.
+W idealnym rozwiązaniu, programista gry wskazuje jedynie które pola w poszczególnych obiektach
+powinny być przesyłane, dając również wskazówki np. co do wymaganej dokładności, czy częstotliwości
+synchronizacji. Taki sposób programowania jest zgodny z paradygmatem programowania deklaratywnego,
+w którym programista określa jaki cel chce osiągnąć, a nie musi podawać sposobu na jego osiągnięcie.
+
+Biblioteka do synchronizacji powinna więc spełniać następujące założenia:
+\begin{itemize}
+\item prostota użycia,
+\item zwolnienie programisty gry z konieczności pamiętania o niskopoziomowych problemach komunikacji
+  sieciowej,
+\item możliwość rekurencyjnego synchronizowania całych drzew obiektów,
+\item kompresja różnicowa (przesyłanie jedynie zmian stanu) dla zmniejszenia rozmiarów danych,
+\item bezproblemowe działanie w warunkach często traconych pakietów.
+\end{itemize}
+
+\subsection{Sposób użycia biblioteki}
+
+Na listingu \ref{lst:uzycie} przedstawiono kod synchronizujący jeden z obiektów gry -- jest
+to obiekt reprezentujący postać gracza. Pozostałe funkcje tego obiektu nie są teraz istotne.
+
+\begin{lstlisting}[label=lst:uzycie,caption=Kod synchronizujący jeden z obiektów gry]
+/**
+ * @public
+ * @param {network.ISynchronizer} sync
+ */
+game.Player.prototype.synchronize = function (sync) {
+    // poniższe trzy obiekty zostaną zsynchronizowane rekurencyjnie
+    this.head = sync.synchronize(this.head, Type.OBJECT);
+    this.torso = sync.synchronize(this.torso, Type.OBJECT);
+    this.legs = sync.synchronize(this.legs, Type.OBJECT);
+
+    // INT8 określa typ i wymaganą dokładność (8 bitów)
+    this.legsState = sync.synchronize(this.legsState, Type.INT8);
+    this.torsoState = sync.synchronize(this.torsoState, Type.INT8);
+
+    this.lastYaw = sync.synchronize(this.lastYaw, Type.FLOAT32);
+    this.legsAngle = sync.synchronize(this.legsAngle, Type.FLOAT32);
+};
+\end{lstlisting}
+
+Każdy obiekt, który ma być synchronizowany musi definiować funkcję \emph{synchronize}, która jako
+argument przyjmuje obiekt synchronizatora (przedstawiony w następnym podrozdziale). Synchronizacja jest
+przemyślana w taki sposób, aby nie było konieczne pisanie osobnych funkcji odczytujących i zapisujących
+(choć jest to możliwe w razie konieczności).
+Dzięki temu unika się błędów związanych z różną kolejnością zapisu i odczytu składowych lub pominięcia
+jednej z nich.
+
+Synchronizator pamięta czy pracuje w trybie odczytu i zapisu. Jeśli jest to tryb odczytu,
+jego funkcja \emph{synchronize} zwraca dokładnie taką wartość jaką otrzymała i obiekt pozostaje niezmieniony.
+
+Jak widać, możliwa jest synchronizacja nie tylko typów prostych, ale również obiektów zdefiniowanych
+przez użytkownika. Dzięki temu można jednym wywołaniem zapisać i odczytać całą scenę gry.
+
+\section{Omówienie struktury biblioteki}
+
+\begin{figure}[h!]
   \centering
   \includegraphics[scale=0.7]{zasoby/rozdzial31/network}  
   \caption{Diagram klas biblioteki do synchronizacji sieciowej.}
-  \label{fig:screen}
+  \label{fig:networkSync}
 \end{figure}
 
+Rysunek \ref{fig:networkSync} przedstawia diagram klas biblioteki.
+Najważniejszą klasą jest \emph{AbstractSynchronizer}, z której dziedziczą odpowiednio \emph{ObjectReader}
+i \emph{ObjectWriter}. \emph{ObjectReader} jest przekazywany odczytywanym obiektom do funkcji \emph{synchronize},
+zaś \emph{ObjecWriter}, jest używany podczas zapisywania obiektu.
+
+Każdy obiekt który ma być synchronizowany, musi implementować interfejs \emph{ISynchronizable}\footnote{
+  Oczywiście, z racji tego, że JavaScript jest językiem dynamicznym i nie ma w nim pojęcia interfejsu,
+  mowa tu tylko o implementacji interfejsu w sensie koncepcyjnym. Z punktu widzenia języka, wystarczy
+  jeśli dany obiekt posiada odpowiednie metody.}.
+
+Całym procesem synchronizacji sterują klasy \emph{Client} lub \emph{Server}, w zależności od tego, czy
+gra działa jako klient czy serwer. Dodatkowe klasy zajmują się przechowywaniem całego stanu gry, kompresją
+różnicową oraz serializacją stanu do postaci binarnej.
 
 \section{Logika gry}
 \label{sec:logikaGry}
 
+Kod sterujący logiką korzysta z wszystkich wyżej wymienionych komponentów. Działa równolegle do kodu renderera,
+na osobnym wątku. Ma swoją pętlę główną, podczas której następuje synchronizacja sieciowa, aktualizacja stanu gry,
+oraz przesłanie aktualizacji stanu do renderera. Jej implementacja jest zgodna z opisem z rozdziału
+\ref{ssec:petlaGlowna}, z jedną tylko istotną różnicą -- logika gry nie uruchamia renderowania, a jedynie
+przesyła do wątku renderera (który cały czas renderuje świat gry) aktualizację stanu.
+
+Tradycyjnie do implementacji logiki gry często używa się języków skryptowych, które są bardziej przystępne 
+i elastyczne od języków natywnych oraz umożliwiają szybką aktualizację kodu w czasie działania gry, co znacząco
+wpływa na szybkość jej tworzenia. Takie rozwiązanie ma jednak wadę w postaci konieczności osadzenia
+w grze wirtualnej maszyny i udostępnienia dla niej odpowiedniego API. W przypadku JavaScript, cała
+gra jest napisana w języku skryptowym, nie ma więc konieczności dodawania drugiego języka i tworzenia
+warstwy pośredniczącej.
+
+\subsection{Omówienie struktury}
+\begin{figure}[h]
+  \centering
+  \includegraphics[scale=0.4]{zasoby/rozdzial31/game}  
+  \caption{Diagram klas przedstawiający logikę gry}
+  \label{fig:gameClasses}
+\end{figure}
+
+Diagram \ref{fig:gameClasses} przedstawia strukturę klas składających się na stan gry. Wszystkie obiekty
+znajdujące się w świecie gry wywodzą się z klasy \emph{EntityState}. Do obiektów tych należą:
+\begin{itemize}
+\item gracze (\emph{PlayerState}),
+\item pociski, takie jak rakiety (\emph{ProjectileState}),
+\item przedmioty, które gracze mogą zbierać, takie jak bronie, amunicja, apteczki (\emph{ItemState}).
+\end{itemize}
+
+Postać gracza jest podzielona na trzy części (\emph{PlayerPartState}) -- głowę, tułów i nogi, z których
+każda animuje się oddzielnie. Dzięki temu możliwe jest jednoczesne bieganie w dowolnym kierunku
+i strzelanie. Nie wszystkie możliwości, które daje przedstawiona struktura zostały wykorzystane w aktualnej
+wersji gry. Na razie nie ma jeszcze przedmiotów do podnoszenia oraz rakiet, jednak przy istniejącym
+kodzie ich dodanie jest już łatwym zadaniem.
+
+
 \section{Opis z punktu widzenia użytkownika}
+
+Gotową grę można zobaczyć na stronie \url{http://game-webarena.rhcloud.com/}.
+
+Po wejściu na stronę, automatycznie uruchamiana jest gra w trybie serwera. Generowany jest też link,
+który można przesłać znajomemu, chcącemu dołączyć do gry. Po wejściu w podany URL, zostanie on podłączony
+do gry jako klient.
+
+Sterowanie jest bardzo podobne do innych gier typu FPS:
+\begin{itemize}
+\item mysz -- rozglądanie się,
+\item lewy przycisk myszy -- strzał,
+\item spacja -- skok,
+\item W, S, A, D -- poruszanie się (odpowiednio: do przodu, do tyłu, lewo, prawo),
+\item ctrl -- kucnięcie.
+\end{itemize}
+
+Gra działa na przeglądarkach Google Chrome i Mozilla Firefox w najnowszych wersjach. Obsługa innych
+przeglądarek może zostać dodana, kiedy będą już miały zaimplementowaną obsługę wszystkich potrzebnych
+standardów i wystarczająco szybki silnik JavaScript.
+
+Grafika \ref{fig:screen} przedstawia zrzut ekranu z gry.
 
 \begin{figure}[h]
   \centering
